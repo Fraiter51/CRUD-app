@@ -10,6 +10,7 @@ import ru.user.springApp.models.Person;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class PersonDAO {
@@ -30,15 +31,20 @@ public class PersonDAO {
                 new Object[]{id},
                 new BeanPropertyRowMapper<>(Person.class)).stream().findAny().orElse(null);
     }
+    public Optional<Person> show(String email) {
+        return jdbcTemplate.query("SELECT email FROM PERSON WHERE email = ?",
+                new Object[]{email},
+                new BeanPropertyRowMapper<>(Person.class)).stream().findAny();
+    }
 
     public void save(Person person) {
-        jdbcTemplate.update("INSERT INTO PERSON VALUES(?,?,?,?)",
-               person.getId(), person.getName(), person.getAge(), person.getEmail());
+        jdbcTemplate.update("INSERT INTO PERSON (name, age, email, address) VALUES(?,?,?,?)",
+                person.getName(), person.getAge(), person.getEmail(), person.getAddress());
     }
 
     public void update(int id, Person person) {
-        jdbcTemplate.update("UPDATE Person set name=?, age=?, email=? where id=?",
-                person.getName(), person.getAge(), person.getEmail(), id);
+        jdbcTemplate.update("UPDATE Person set name=?, age=?, email=?, set address = ? where id=?",
+                person.getName(), person.getAge(), person.getEmail(),person.getAddress(), id);
     }
 
     public void delete(int id) {
@@ -84,7 +90,7 @@ public class PersonDAO {
     private List<Person> create1000People() {
         List<Person> people = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            people.add(new Person(1, "Name " + i, 30, "test" + i + "@gmail.com"));
+            people.add(new Person(1, "Name " + i, 30, "test" + i + "@gmail.com", "South_Africa"));
         }
         return people;
     }
